@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 import model.Task;
@@ -77,6 +80,7 @@ public class MainController {
 		
 		model.addObject("taskform", new UserTasksForm(tasks));
 		model.addObject("statuslist", TaskStatus.values());
+		model.addObject("tasksearch", new Task());
 		model.setViewName("user_tasks");
 		return model;
 	}
@@ -142,17 +146,43 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "/updateTasksStatus", method = RequestMethod.POST)
-	public ModelAndView updateTasksStatus(@ModelAttribute("taskform") UserTasksForm taskForm) {
+	public String updateTasksStatus(@ModelAttribute("taskform") UserTasksForm taskForm) {
 		List<Task> tasks = taskForm.getTasks();
 		
 		if(null != tasks && tasks.size() > 0) {
 			for (Task task : tasks) {
-				taskService.save(task);
+				Task dbTask = taskService.findTaskById(task.getId());
+				dbTask.setStatus(task.getStatus());
+				taskService.save(dbTask);
 			}
 		}
-		
-		return new ModelAndView("user_tasks", "contactForm", new UserTasksForm(tasks));
+		return "redirect:/";
 	}
+	
+	@RequestMapping(value = "/taskSearch", method = RequestMethod.POST)
+	public ModelAndView search(@ModelAttribute("tasksearch") Task task){
+		ModelAndView model = new ModelAndView();
+		
+		User user = getCurrentUser();
+		List<TaskStatus> statusList = new ArrayList<TaskStatus>();
+		if(task.getStatus() == null){
+			statusList =  Arrays.asList(TaskStatus.values());
+		}
+		else
+		{
+			statusList.add(task.getStatus());
+		}
+		List<Task> tasks = taskService.findTaskByNameContainingAndStatusInAndUser(task.getName(), statusList, user);
+		
+		model.addObject("taskform", new UserTasksForm(tasks));
+		model.addObject("statuslist", TaskStatus.values());
+		model.addObject("tasksearch", task);
+		model.setViewName("user_tasks");
+		
+		return model;
+	}
+		
+	
 	private boolean isUserRoleAdmin(){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		UserDetails userDetail = (UserDetails) auth.getPrincipal();

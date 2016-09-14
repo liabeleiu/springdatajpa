@@ -3,6 +3,7 @@ package service;
 import java.util.List;
 
 import model.Task;
+import model.TaskStatus;
 import model.User;
 
 
@@ -12,7 +13,7 @@ public interface TaskService {
 	
 	List<Task> findTasksForUser(User user);
 	
-	List<Task> findTaskByNameContaining(String namePart);
+	List<Task> findTaskByNameContainingAndStatusInAndUser(String namePart, List<TaskStatus> statusList, User user);
 	
 	Task findTaskById(Integer id);
 	

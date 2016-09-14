@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import model.Task;
+import model.TaskStatus;
 import model.User;
 import repository.TaskRepository;
 
@@ -30,10 +31,7 @@ public class TaskServiceImpl implements TaskService{
 		return taskRepository.getTaskByUser(user);
 	}
 
-	@Override
-	public List<Task> findTaskByNameContaining(String namePart) {
-		return taskRepository.findByNameContaining(namePart);
-	}
+	
 
 	@Override
 	public Task findTaskById(Integer id) {
@@ -44,6 +42,11 @@ public class TaskServiceImpl implements TaskService{
 	public void deleteTask(Task task) {
 		taskRepository.delete(task);
 		
+	}
+
+	@Override
+	public List<Task> findTaskByNameContainingAndStatusInAndUser(String namePart, List<TaskStatus> statusList, User user){
+		return taskRepository.findTaskByNameContainingAndStatusInAndUser(namePart, statusList, user);
 	}
 
 	

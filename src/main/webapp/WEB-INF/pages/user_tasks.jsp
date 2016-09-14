@@ -35,6 +35,7 @@ tr:nth-child(even) {
 		}
 	</script>
 
+	
 	<c:if test="${pageContext.request.userPrincipal.name != null}">
 		<h2>
 			User : ${pageContext.request.userPrincipal.name} | <a
@@ -42,26 +43,35 @@ tr:nth-child(even) {
 		</h2>
 	</c:if>
 
+	<form:form method="POST" action="taskSearch" modelAttribute="tasksearch">
+		<form:input path="name" />
+		<form:select path="status"> 
+		<form:option value="${null}">ANY STATUS</form:option>
+			<form:options items="${statuslist}" />
+		</form:select>
+
+		<input type="submit" value="Search" />
+	</form:form>
+	
 	<c:if test="${not empty taskform.tasks}">
-		
-		<form:form method="POST" action="updateTasksStatus" modelAttribute="taskform">
-		<table>
-			<c:forEach var="task" varStatus="status" items="${taskform.tasks}">
-				<tr>
-					<td><a href="<c:url value="/taskdetails/${task.id}"/>">${task.id}</a></td>
-					<td>${task.name}</td>
-					<td>
-						<form:select path="tasks[${status.index}].status" onchange="this.form.submit()">
-							<form:options items="${statuslist}" />
-						</form:select>
-					</td>
-				</tr>
-			</c:forEach>
-			
-			<input type="submit" value="Save" />
-		</table>	
+
+		<form:form method="POST" action="updateTasksStatus"
+			modelAttribute="taskform">
+			<table>
+				<c:forEach var="task" varStatus="status" items="${taskform.tasks}">
+					<tr>
+						<form:input path="tasks[${status.index}].id" type="hidden" />
+						<td><a href="<c:url value="/taskdetails/${task.id}"/>">${task.id}</a></td>
+						<td>${task.name}</td>
+						<td><form:select path="tasks[${status.index}].status"
+								onchange="this.form.submit()">
+								<form:options items="${statuslist}" />
+							</form:select></td>
+					</tr>
+				</c:forEach>
+			</table>
 		</form:form>
-		
+
 	</c:if>
 </body>
 </html>
